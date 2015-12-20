@@ -5,22 +5,22 @@
 # -???
 # -Profit
 
-require 'word'
+
 
 class World
 
   def initialize
     @goal_word = "cat"
     @mutation_frequency = 1 #This will be implemented in the final game loop.
-    @mutation_bucket = {0 => []}
+    @mutation_bucket = {1 => []}
     @@generation_counter = 0
     @reject_bin = []
-    @initial_population = 10
+    @generation_size = 10
   end
 
   def first_generation
     ##Creates 10 random 3 letter strings
-    @initial_population.times { mutation_bucket[1] << Word.new("#{('a'..'z').to_a.shuffle[0,3].join}") }
+    @generation_size.times { @mutation_bucket[1] << Word.new("#{('a'..'z').to_a.shuffle[0,3].join}") }
     @@generation_counter += 1
   end
 
@@ -30,7 +30,7 @@ class World
   end
 
   def pluck_word_and_mutate
-    mutate(@mutation_bucket[@@generation_counter].sample)
+    @mutation_frequency.times {mutate(@mutation_bucket[@@generation_counter].sample)}
   end
 
   def breed(word1, word2)
@@ -58,11 +58,11 @@ class World
 
   def evaluate_all
     #Evaluates all words in the generation
-    mutation_bucket[@@generation_counter].each {|word| evaluate_word(word)}
+    @mutation_bucket[@@generation_counter].each {|word| evaluate_word(word)}
   end
 
   def sort_the_bucket
-    mutation_bucket[@@generation_counter].sort_by {|word| word.fitness_score }.reverse!
+    @mutation_bucket[@@generation_counter].sort_by {|word| word.fitness_score }.reverse!
   end
 
   def different_word?(word1, word2)
@@ -71,34 +71,36 @@ class World
 
   def create_new_generation
     @@generation_counter += 1
-    mutation_bucket[@@generation_counter] = []
+    @mutation_bucket[@@generation_counter] = []
   end
 
   def breed_candidates
     #Combines characters from two different words at random
-    word1 = mutation_bucket.sample
-    word2 = mutation_bucket.sample
-    10.times do
+    word1 = @mutation_bucket.sample
+    word2 = @mutation_bucket.sample
+    @generation_size.times do
       if different_word?(word1, word2)
-        mutation_bucket[@@generation_counter] << breed(word1,word2)
+        @mutation_bucket[@@generation_counter] << breed(word1,word2)
       end
     end
   end
 
   def transfer_low_scores_to_reject_bin
-    reject_bin << mutation_bucket[5...-1]
+    @reject_bin << @mutation_bucket[15...-1]
   end
 
   def delete_low_scores_from_bucket
-    mutation_bucket = mutation_bucket[@@generation_counter].take(@initial_population / 3)
+    @mutation_bucket = @mutation_bucket[@@generation_counter].take(15)
   end
 
   def end_at_goal
-    mutation_bucket.each do |generation, word|
-      if word.fitness_score == @goal_word.length
-        true
-      else
-        false
+    @mutation_bucket.each do |generation, array|
+      array.each do |word|
+        if word.fitness_score == @goal_word.length
+          true
+        else
+          false
+        end
       end
     end
   end
@@ -106,16 +108,15 @@ class World
   def evolve
     #Still need to finish this. This will be the game loop.
     first_generation
-    until end_at_goal
+
+    # until end_at_goal
     	evaluate_all
-      puts @mutation_bucket[@@generation_counter]
       sort_the_bucket
     	transfer_low_scores_to_reject_bin
     	delete_low_scores_from_bucket
     	create_new_generation
     	breed_candidates
-    	@@generation_counter += 1
-    end
+      puts @mutation_bucket
   end
 
 end
