@@ -1,6 +1,5 @@
 # TODO:
 # -Rename a few methods
-# -Figure out a way to implement mutation frequency
 # -Write the game loop.
 # -???
 # -Profit
@@ -108,9 +107,9 @@ class World
   def evolve
     #Still need to finish this. This will be the game loop.
     first_generation
-
     # until end_at_goal
     	evaluate_all
+      puts @mutation_bucket
       sort_the_bucket
     	transfer_low_scores_to_reject_bin
     	delete_low_scores_from_bucket
