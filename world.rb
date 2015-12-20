@@ -4,7 +4,7 @@
 # -???
 # -Profit
 
-require 'word'
+
 
 class World
 
@@ -85,19 +85,21 @@ class World
   end
 
   def transfer_low_scores_to_reject_bin
-    @reject_bin << @mutation_bucket[5...-1]
+    @reject_bin << @mutation_bucket[15...-1]
   end
 
   def delete_low_scores_from_bucket
-    @mutation_bucket = @mutation_bucket[@@generation_counter].take(@generation_size / 3)
+    @mutation_bucket = @mutation_bucket[@@generation_counter].take(15)
   end
 
   def end_at_goal
-    @mutation_bucket.each do |generation, word|
-      if word.fitness_score == @goal_word.length
-        true
-      else
-        false
+    @mutation_bucket.each do |generation, array|
+      array.each do |word|
+        if word.fitness_score == @goal_word.length
+          true
+        else
+          false
+        end
       end
     end
   end
@@ -105,7 +107,7 @@ class World
   def evolve
     #Still need to finish this. This will be the game loop.
     first_generation
-    until end_at_goal
+    # until end_at_goal
     	evaluate_all
       puts @mutation_bucket
       sort_the_bucket
@@ -113,8 +115,7 @@ class World
     	delete_low_scores_from_bucket
     	create_new_generation
     	breed_candidates
-    	@@generation_counter += 1
-    end
+      puts @mutation_bucket
   end
 
 end
