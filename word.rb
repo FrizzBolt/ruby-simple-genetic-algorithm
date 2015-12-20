@@ -1,3 +1,5 @@
+require 'world'
+
 class Word
 
   attr_reader :content

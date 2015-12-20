@@ -1,16 +1,17 @@
-#TODO:
-#-Rename a few methods
-#-Figure out a way to implement mutation frequency
-#-Write the game loop.
-#-???
-#-Profit
+# TODO:
+# -Rename a few methods
+# -Figure out a way to implement mutation frequency
+# -Write the game loop.
+# -???
+# -Profit
 
+require 'word'
 
 class World
 
   def initialize
     @goal_word = "cat"
-    @mutation_frequency = ? #This will be implemented in the final game loop.
+    @mutation_frequency = 1 #This will be implemented in the final game loop.
     @mutation_bucket = {0 => []}
     @@generation_counter = 0
     @reject_bin = []
@@ -26,6 +27,10 @@ class World
   def mutate(word)
     #Replaces a random letter in a given word with a new random letter
     Word.content.tr(word[rand(@goal_word.length)], (65 + rand(26)).chr.downcase)
+  end
+
+  def pluck_word_and_mutate
+    mutate(@mutation_bucket[@@generation_counter].sample)
   end
 
   def breed(word1, word2)
@@ -89,10 +94,9 @@ class World
   end
 
   def end_at_goal
-    mutation_bucket.each do |word, index|
+    mutation_bucket.each do |generation, word|
       if word.fitness_score == @goal_word.length
         true
-        break
       else
         false
       end
@@ -101,15 +105,17 @@ class World
 
   def evolve
     #Still need to finish this. This will be the game loop.
-  	first_generation
-  	evaluate_all
-  	sort_the_bucket
-  	transfer_low_scores_to_reject_bin
-  	delete_low_scores_from_bucket
-  	create_new_generation
-  	breed_candidates
-  	@@generation_counter += 1
-  	end_at_goal
+    first_generation
+    until end_at_goal
+    	evaluate_all
+      puts @mutation_bucket[@@generation_counter]
+      sort_the_bucket
+    	transfer_low_scores_to_reject_bin
+    	delete_low_scores_from_bucket
+    	create_new_generation
+    	breed_candidates
+    	@@generation_counter += 1
+    end
   end
 
 end
