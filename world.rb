@@ -4,17 +4,7 @@
 # -???
 # -Profit
 
-class Word
-
-  attr_reader :content
-  attr_accessor :fitness_score
-
-  def initialize(word)
-    @content = word
-    @fitness_score = 0
-  end
-
-end
+require_relative 'word'
 
 class World
 
@@ -134,7 +124,3 @@ class World
     # end
   end
 end
-
-world = World.new
-world.first_generation
-world.evaluate_all
