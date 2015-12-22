@@ -20,7 +20,7 @@ class World
 
   def initialize
     @goal_word = "cat"
-    @mutation_frequency = 1 #This will be implemented in the final game loop.
+    @mutation_frequency = 1 #Maximum amount of mutations per generation
     @mutation_bucket = {1 => []}
     @@generation_counter = 1
     @reject_bin = []
@@ -108,33 +108,31 @@ class World
   end
 
   def end_at_goal
-    @mutation_bucket.each do |generation, array|
-      array.each do |word|
-        if word.fitness_score == @goal_word.length
-          true
-        else
-          false
-        end
+    @mutation_bucket[@@generation_counter].each do |word|
+      if word.fitness_score == @goal_word.length
+        true
+      else
+        false
       end
     end
   end
 
   def evolve
     #Still need to finish this. This will be the game loop.
-    first_generation
-    until end_at_goal
+    # first_generation
+    # while end_at_goal == false
+      rand(@mutation_frequency).times do |word|
+        mutate(word)
+      end
     	evaluate_all
-      puts @mutation_bucket
       sort_the_bucket
     	transfer_low_scores_to_reject_bin
     	delete_low_scores_from_bucket
     	create_new_generation
-      @@generation_counter += 1
     	breed_candidates
-      puts @mutation_bucket
-    end
+      puts @mutation_bucket[@@generation_counter]
+    # end
   end
-
 end
 
 world = World.new
