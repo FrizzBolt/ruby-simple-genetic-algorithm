@@ -94,7 +94,7 @@ class World
   end
 
   def delete_low_scores_from_bucket
-    @mutation_bucket = @mutation_bucket[@@generation_counter].take(@generation_size)
+    @mutation_bucket[@@generation_counter] = @mutation_bucket[@@generation_counter].take(@generation_size)
   end
 
   def end_at_goal
@@ -109,8 +109,8 @@ class World
 
   def evolve
     #Still need to finish this. This will be the game loop.
-    # first_generation
-    # while end_at_goal == false
+    first_generation
+    until end_at_goal
       rand(@mutation_frequency).times do |word|
         mutate(word)
       end
@@ -121,6 +121,6 @@ class World
     	create_new_generation
     	breed_candidates
       puts @mutation_bucket[@@generation_counter]
-    # end
+    end
   end
 end
