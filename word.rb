@@ -1,4 +1,3 @@
-require 'world'
 
 class Word
 
