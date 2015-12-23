@@ -10,7 +10,7 @@ class World
 
   def initialize
     @goal_word = "cat"
-    @mutation_frequency = 1 #Maximum amount of mutations per generation
+    @mutation_frequency = 2 #Maximum amount of mutations per generation
     @mutation_bucket = {1 => []}
     @@generation_counter = 1
     @reject_bin = []
@@ -18,13 +18,13 @@ class World
   end
 
   def first_generation
-    ##Creates 10 random 3 letter strings
+    ##Creates @generation_size.length amount of random 3 letter strings
     @generation_size.times { @mutation_bucket[1] << Word.new("#{('a'..'z').to_a.shuffle[0,3].join}") }
   end
 
   def mutate(word)
     #Replaces a random letter in a given word with a new random letter
-    Word.content.tr(word[rand(@goal_word.length)], (65 + rand(26)).chr.downcase)
+    word.content = Word.content.tr(word[rand(@goal_word.length)], (65 + rand(26)).chr.downcase)
   end
 
   def pluck_word_and_mutate
@@ -90,11 +90,11 @@ class World
   end
 
   def transfer_low_scores_to_reject_bin
-    @reject_bin << @mutation_bucket[@generation_size...-1]
+    @reject_bin << @mutation_bucket[@@generation_counter][@generation_size...-1]
   end
 
   def delete_low_scores_from_bucket
-    @mutation_bucket[@@generation_counter] = @mutation_bucket[@@generation_counter].take(@generation_size)
+    @mutation_bucket[@@generation_counter] = @mutation_bucket[@@generation_counter].take(@generation_size / 3)
   end
 
   def end_at_goal
@@ -107,20 +107,21 @@ class World
     end
   end
 
-  def evolve
-    #Still need to finish this. This will be the game loop.
-    first_generation
-    until end_at_goal
-      rand(@mutation_frequency).times do |word|
-        mutate(word)
-      end
-    	evaluate_all
-      sort_the_bucket
-    	transfer_low_scores_to_reject_bin
-    	delete_low_scores_from_bucket
-    	create_new_generation
-    	breed_candidates
-      puts @mutation_bucket[@@generation_counter]
+  def mutate_from_bucket
+    rand(@mutation_frequency).times
+      mutate(@mutation_bucket[@@generation_counter].sample)
     end
   end
+
+  def evolve_once
+    #Still need to finish this. This will be the game loop.
+    mutate_from_bucket
+  	evaluate_all
+    sort_the_bucket
+  	transfer_low_scores_to_reject_bin
+  	delete_low_scores_from_bucket
+  	create_new_generation
+  	breed_candidates
+  end
+
 end
