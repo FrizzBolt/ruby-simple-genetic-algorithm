@@ -102,7 +102,7 @@ class World
       if word.fitness_score == @goal_word.length
         true
       else
-        false
+        falsek.
       end
     end
   end
