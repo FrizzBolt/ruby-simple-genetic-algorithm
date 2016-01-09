@@ -1,8 +1,7 @@
 
 class Word
 
-  attr_reader :content
-  attr_accessor :fitness_score
+  attr_accessor :fitness_score, :content
 
   def initialize(word)
     @content = word

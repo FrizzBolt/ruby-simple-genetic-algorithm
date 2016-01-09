@@ -9,22 +9,24 @@ require_relative 'word'
 class World
 
   def initialize
-    @goal_word = "cat"
+    @goal_word = "banana"
     @mutation_frequency = 2 #Maximum amount of mutations per generation
     @mutation_bucket = {1 => []}
     @@generation_counter = 1
     @reject_bin = []
-    @generation_size = 30
+    @generation_size = 100
   end
 
   def first_generation
     ##Creates @generation_size.length amount of random 3 letter strings
-    @generation_size.times { @mutation_bucket[1] << Word.new("#{('a'..'z').to_a.shuffle[0,3].join}") }
+    @generation_size.times { @mutation_bucket[1] << Word.new("#{('a'..'z').to_a.shuffle[0,@goal_word.length].join}") }
   end
 
   def mutate(word)
     #Replaces a random letter in a given word with a new random letter
-    word.content = Word.content.tr(word[rand(@goal_word.length)], (65 + rand(26)).chr.downcase)
+    word_array = word.content.split("")
+    word_array[rand(word_array.length)] = (65 + rand(26)).chr.downcase
+    word.content = word_array.join("")
   end
 
   def pluck_word_and_mutate
@@ -66,7 +68,7 @@ class World
   end
 
   def sort_the_bucket
-    @mutation_bucket[@@generation_counter].sort_by {|word| word.fitness_score }.reverse!
+    @mutation_bucket[@@generation_counter].sort_by! {|word| word.fitness_score }.reverse!
   end
 
   def different_word?(word1, word2)
@@ -94,7 +96,7 @@ class World
   end
 
   def delete_low_scores_from_bucket
-    @mutation_bucket[@@generation_counter] = @mutation_bucket[@@generation_counter].take(@generation_size / 3)
+    @mutation_bucket[@@generation_counter] = @mutation_bucket[@@generation_counter].take(@generation_size / 4)
   end
 
   def end_at_goal
@@ -107,21 +109,15 @@ class World
     end
   end
 
-  def mutate_from_bucket
-    rand(@mutation_frequency).times
-      mutate(@mutation_bucket[@@generation_counter].sample)
-    end
-  end
 
   def evolve_once
     #Still need to finish this. This will be the game loop.
-    mutate_from_bucket
+    pluck_word_and_mutate
   	evaluate_all
     sort_the_bucket
-  	transfer_low_scores_to_reject_bin
   	delete_low_scores_from_bucket
-  	create_new_generation
-  	breed_candidates
+    create_new_generation
+    breed_candidates
   end
 
 end
