@@ -1,9 +1,3 @@
-# TODO:
-# -Rename a few methods
-# -Write the game loop.
-# -???
-# -Profit
-
 require_relative 'word'
 
 class World
@@ -18,7 +12,7 @@ class World
   end
 
   def first_generation
-    ##Creates @generation_size.length amount of random 3 letter strings
+    #Creates @generation_size.length amount of random 3 letter strings
     @generation_size.times { @mutation_bucket[1] << Word.new("#{('a'..'z').to_a.shuffle[0,@goal_word.length].join}") }
   end
 
@@ -30,6 +24,8 @@ class World
   end
 
   def pluck_word_and_mutate
+    #Grabs a random word and runs a mutation on one of the letters. This is repeated the same amount of times as
+    #the mutation frequency
     @mutation_frequency.times {mutate(@mutation_bucket[@@generation_counter].sample)}
   end
 
@@ -61,17 +57,13 @@ class World
     @mutation_bucket[@@generation_counter].map {|word| self.evaluate_word(word)}
   end
 
-  def first_generation_success?
-    @mutation_bucket[1].each do |word|
-      word.fitness_score > 0
-    end
-  end
-
   def sort_the_bucket
+    #Sorts the bucket based on fitness score
     @mutation_bucket[@@generation_counter].sort_by! {|word| word.fitness_score }.reverse!
   end
 
   def different_word?(word1, word2)
+    #Compares the content of two words
     word1.content != word2.content
   end
 
@@ -109,9 +101,7 @@ class World
     end
   end
 
-
   def evolve_once
-    #Still need to finish this. This will be the game loop.
     pluck_word_and_mutate
   	evaluate_all
     sort_the_bucket
