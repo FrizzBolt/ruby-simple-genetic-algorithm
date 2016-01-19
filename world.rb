@@ -5,15 +5,15 @@ class World
   def initialize
     @goal_word = "banana"
     @mutation_frequency = 2 #Maximum amount of mutations per generation
-    @mutation_bucket = {1 => []}
+    @dna_storage = {1 => []}
     @@generation_counter = 1
-    @reject_bin = []
+    @rejected_candidates = []
     @generation_size = 100
   end
 
   def first_generation
     #Creates @generation_size.length amount of random 3 letter strings
-    @generation_size.times { @mutation_bucket[1] << Word.new("#{('a'..'z').to_a.shuffle[0,@goal_word.length].join}") }
+    @generation_size.times { @dna_storage[1] << Word.new("#{('a'..'z').to_a.shuffle[0,@goal_word.length].join}") }
   end
 
   def mutate(word)
@@ -26,7 +26,7 @@ class World
   def pluck_word_and_mutate
     #Grabs a random word and runs a mutation on one of the letters. This is repeated the same amount of times as
     #the mutation frequency
-    @mutation_frequency.times {mutate(@mutation_bucket[@@generation_counter].sample)}
+    @mutation_frequency.times {mutate(@dna_storage[@@generation_counter].sample)}
   end
 
   def breed(word1, word2)
@@ -54,12 +54,12 @@ class World
 
   def evaluate_all
     #Evaluates all words in the generation
-    @mutation_bucket[@@generation_counter].map {|word| self.evaluate_word(word)}
+    @dna_storage[@@generation_counter].map {|word| self.evaluate_word(word)}
   end
 
-  def sort_the_bucket
+  def sort_storage
     #Sorts the bucket based on fitness score
-    @mutation_bucket[@@generation_counter].sort_by! {|word| word.fitness_score }.reverse!
+    @dna_storage[@@generation_counter].sort_by! {|word| word.fitness_score }.reverse!
   end
 
   def different_word?(word1, word2)
@@ -69,30 +69,30 @@ class World
 
   def create_new_generation
     @@generation_counter += 1
-    @mutation_bucket[@@generation_counter] = []
+    @dna_storage[@@generation_counter] = []
   end
 
   def breed_candidates
     #Combines characters from two different words at random
     @generation_size.times do
-      word1 = @mutation_bucket[@@generation_counter - 1].sample
-      word2 = @mutation_bucket[@@generation_counter - 1].sample
+      word1 = @dna_storage[@@generation_counter - 1].sample
+      word2 = @dna_storage[@@generation_counter - 1].sample
       if different_word?(word1, word2)
-        @mutation_bucket[@@generation_counter] << breed(word1,word2)
+        @dna_storage[@@generation_counter] << breed(word1,word2)
       end
     end
   end
 
-  def transfer_low_scores_to_reject_bin
-    @reject_bin << @mutation_bucket[@@generation_counter][@generation_size...-1]
+  def transfer_low_scores_to_rejected_candidates
+    @rejected_candidates << @dna_storage[@@generation_counter][@generation_size...-1]
   end
 
-  def delete_low_scores_from_bucket
-    @mutation_bucket[@@generation_counter] = @mutation_bucket[@@generation_counter].take(@generation_size / 4)
+  def delete_low_scores_from_storage
+    @dna_storage[@@generation_counter] = @dna_storage[@@generation_counter].take(@generation_size / 4)
   end
 
   def end_at_goal
-    @mutation_bucket[@@generation_counter].each do |word|
+    @dna_storage[@@generation_counter].each do |word|
       if word.fitness_score == @goal_word.length
         true
       end
@@ -102,8 +102,8 @@ class World
   def evolve_once
     pluck_word_and_mutate
   	evaluate_all
-    sort_the_bucket
-  	delete_low_scores_from_bucket
+    sort_storage
+  	delete_low_scores_from_storage
     create_new_generation
     breed_candidates
   end
