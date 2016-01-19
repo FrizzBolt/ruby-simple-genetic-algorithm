@@ -95,8 +95,6 @@ class World
     @mutation_bucket[@@generation_counter].each do |word|
       if word.fitness_score == @goal_word.length
         true
-      else
-        false
       end
     end
   end
@@ -108,6 +106,12 @@ class World
   	delete_low_scores_from_bucket
     create_new_generation
     breed_candidates
+  end
+
+  def evolve_complete
+    until end_at_goal
+      evolve_once
+    end
   end
 
 end
